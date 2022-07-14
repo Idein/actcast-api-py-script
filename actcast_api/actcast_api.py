@@ -132,8 +132,8 @@ class ActcastAPI:
 
     # Act情報の取得
     @api_request_exception
-    def get_act_info(self, group_id, act_id):
-        endpoint = self.actcast.groups(group_id).acts(act_id)
+    def get_act_info(self, group_id, device_id):
+        endpoint = self.actcast.groups(group_id).devices(device_id).act
         res = endpoint.get()
 
         return res
