@@ -4,9 +4,8 @@ import sys
 import time
 import csv
 import datetime
-from actcast_api import ActcastAPI, Color, read_api_token
+from actcast_api import ActcastAPI, Color
 
-api_token_path = "./api_token"
 request_interval_msec = 500
 
 @ActcastAPI.api_request_exception
@@ -52,8 +51,7 @@ def ls_device2csv(api, group_id, id_list, out_path):
 
 
 if __name__ == '__main__':
-  token = read_api_token(api_token_path)
-  api = ActcastAPI(token)
+  api = ActcastAPI()
 
   args = sys.argv
   if len(args) < 2:

@@ -26,29 +26,23 @@ class Color:
     INVISIBLE     = '\033[08m'  # 不可視
     RESET         = '\033[0m'   # 全てリセット
 
-
-#############################
-# Utils
-#############################
-
-def read_api_token(path):
-    if not os.path.isfile(path):
-         print(f"{path} に[api_token]ファイルがありません。")
-         sys.exit(1)
-
-    with open(path) as f:
-        return f.readline().rstrip(os.linesep)
-
-
 #############################
 # Actcast API Wrapper
 #############################
 
 class ActcastAPI:
-    def __init__(self, token):
+
+    def __init__(self):
+        SETTING_JSON_PATH = './setting.json'
+        if not os.path.isfile(SETTING_JSON_PATH):
+            print(f"{SETTING_JSON_PATH} に[setting.json]ファイルがありません。")
+            sys.exit(1)
+        with open(SETTING_JSON_PATH) as f:
+            setting_json = json.load(f)
+
         self.actcast = tortilla.wrap('https://api.actcast.io/v0/')
-        self.actcast.config.headers.Authorization = 'token ' + token
-        self.MAX_RETRY = 5
+        self.actcast.config.headers.Authorization = 'token ' + setting_json['api_token']
+        self.MAX_RETRY = setting_json['max_retry']
 
     def isJsonFormat(self, line):
         try:
@@ -201,8 +195,8 @@ class ActcastAPI:
 
 
 if __name__ == '__main__':
-  token = read_api_token("../api_token")
-  api = ActcastAPI(token)
+  setting_json = read_setting("../setting.json")
+  api = ActcastAPI(setting_json)
 
   res = api.get_firmware_info(707)
   print(res.items[0].firmware_version)

@@ -3,10 +3,7 @@ import os
 import sys
 import ast
 import json
-from actcast_api import ActcastAPI, read_api_token
-
-api_token_path = "./api_token"
-
+from actcast_api import ActcastAPI
 
 def example(api, id):
     # PATH PARAMETERS
@@ -30,8 +27,7 @@ def example(api, id):
 
 
 if __name__ == '__main__':
-    token = read_api_token(api_token_path)
-    api = ActcastAPI(token)
+    api = ActcastAPI()
 
     args = sys.argv
     if len(args) < 2:

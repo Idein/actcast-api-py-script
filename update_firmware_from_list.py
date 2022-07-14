@@ -3,9 +3,8 @@ from os import path
 import sys
 import time
 import datetime
-from actcast_api import ActcastAPI, Color, read_api_token
+from actcast_api import ActcastAPI, Color
 
-api_token_path = "./api_token"
 request_interval_msec = 500
 
 def update_firmware(api, group_id, id_list):
@@ -42,8 +41,7 @@ def update_firmware(api, group_id, id_list):
 
 
 if __name__ == '__main__':
-  token = read_api_token(api_token_path)
-  api = ActcastAPI(token)
+  api = ActcastAPI()
 
   args = sys.argv
   if len(args) < 2:
