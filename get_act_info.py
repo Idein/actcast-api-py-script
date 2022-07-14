@@ -15,7 +15,7 @@ def example(api, group_id, device_id):
     }
 
     # Request
-    data = api.get_act_info(group_id, device_id)
+    data = api.get_act_info_on_device(group_id, device_id)
 
     # Print result
     # actcast_api Wrapperの戻り値は正式なJSON形式で返ってこない(シングルクォーテーションが使われている)

@@ -132,7 +132,15 @@ class ActcastAPI:
 
     # Act情報の取得
     @api_request_exception
-    def get_act_info(self, group_id, device_id):
+    def get_act_info(self, group_id, act_id):
+        endpoint = self.actcast.groups(group_id).acts(act_id)
+        res = endpoint.get()
+
+        return res
+
+    # 特定デバイスにインストールされたAct情報の取得
+    @api_request_exception
+    def get_act_info_on_device(self, group_id, device_id):
         endpoint = self.actcast.groups(group_id).devices(device_id).act
         res = endpoint.get()
 
@@ -202,8 +210,7 @@ class ActcastAPI:
 
 
 if __name__ == '__main__':
-  setting_json = read_setting("../setting.json")
-  api = ActcastAPI(setting_json)
+  api = ActcastAPI()
 
   res = api.get_firmware_info(707)
   print(res.items[0].firmware_version)
