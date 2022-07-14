@@ -38,11 +38,18 @@ class ActcastAPI:
             print(f"{SETTING_JSON_PATH} に[setting.json]ファイルがありません。")
             sys.exit(1)
         with open(SETTING_JSON_PATH) as f:
-            setting_json = json.load(f)
+            self.setting_json = json.load(f)
 
         self.actcast = tortilla.wrap('https://api.actcast.io/v0/')
-        self.actcast.config.headers.Authorization = 'token ' + setting_json['api_token']
-        self.MAX_RETRY = setting_json['max_retry']
+        if not 'api_token' in self.setting_json:
+            print("setting.jsonファイル内にapi_tokenの項目がありません。")
+            sys.exit(1)
+        self.actcast.config.headers.Authorization = 'token ' + self.setting_json['api_token']
+
+        if 'max_retry' in self.setting_json:
+            self.MAX_RETRY = self.setting_json['max_retry']
+        else:
+            self.MAX_RETRY = 5
 
     def isJsonFormat(self, line):
         try:
