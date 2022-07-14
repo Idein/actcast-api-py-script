@@ -1,4 +1,6 @@
 {
 "api_token": "37v9ZsGW4ICNwIPqDbspM7gkpclPGrba",
-"max_retry": 5
+"max_retry": 1,
+"update_firmware_interval": 60,
+"update_firmware_devices_per_interval": 40
 }
