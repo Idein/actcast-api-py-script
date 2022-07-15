@@ -33,10 +33,10 @@ def update_firmware(api, group_id, id_list_name):
 
 def init_interval_settings(api):
   # SBプロジェクト対応。一定時間内に更新するデバイス数を制限する
-  if 'update_firmware_interval' in api.setting_json and 'update_firmware_devices_per_interval' in api.setting_json:
+  if 'update_interval' in api.setting_json and 'update_devices_per_interval' in api.setting_json:
     Setting.update_with_interval = True
-    Setting.update_interval = api.setting_json['update_firmware_interval']
-    Setting.devices_per_interval = api.setting_json['update_firmware_devices_per_interval']
+    Setting.update_interval = api.setting_json['update_interval']
+    Setting.devices_per_interval = api.setting_json['update_devices_per_interval']
 
 def update_fw(api, group_id, id_list_name):
   with open(id_list_name) as f:
@@ -82,7 +82,7 @@ def print_latest_fw_info(api, group_id):
   logging.info(f'Start. {datetime.datetime.now()}(JST)')
 
 if __name__ == '__main__':
-    # ログ出力用ストリームハンドラの設定
+  # ログ出力用ストリームハンドラの設定
   stream_handler = StreamHandler()
   stream_handler.setLevel(INFO)
   stream_handler.setFormatter(Formatter("%(message)s"))

@@ -1,6 +1,8 @@
 {
-"api_token": "37v9ZsGW4ICNwIPqDbspM7gkpclPGrba",
+"api_token": "wTqMcL2sk6V8EitCcNh2pTfgkE76yZIa",
 "max_retry": 1,
-"update_firmware_interval": 60,
-"update_firmware_devices_per_interval": 40
+"update_interval": 20,
+"update_devices_per_interval": 2,
+"device_specific_settings_action": "USE",
+"enable_rand_maximum_timelimit_minute_for_sb": true
 }

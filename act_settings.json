@@ -1,0 +1,13 @@
+{
+    "detection_lines": "224,0,224,448",
+    "display": true,
+    "hflip": false,
+    "interval": 9999,
+    "max_bbox_height": 0.9,
+    "max_bbox_width": 0.9,
+    "resize_method": "crop",
+    "rotation": 99,
+    "score_threshold": 0.3,
+    "score_weight": 0.5,
+    "threshold": 0.4
+}
