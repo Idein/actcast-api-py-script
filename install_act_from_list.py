@@ -19,7 +19,7 @@ request_interval_msec = 1000
 
 class DeviceSpecificSettingsAction(Enum):
   RESTORE = 'RESTORE'
-  DONT_USE = 'DONT_USE'
+  USE_DEFAULT = 'USE_DEFAULT'
   USE = 'USE'
   FORCED_RESTORE = 'FORCED_RESTORE'
   @classmethod
@@ -130,7 +130,7 @@ def get_act_settings(api, group_id, current_device_id):
       case DeviceSpecificSettingsAction.USE:
         # ローカルのact_settings.jsonファイルから設定を反映する
         return get_act_settings_from_file()
-      case DeviceSpecificSettingsAction.DONT_USE:
+      case DeviceSpecificSettingsAction.USE_DEFAULT:
         return {}
       case _:
         return {}
