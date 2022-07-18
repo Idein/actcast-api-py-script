@@ -8,10 +8,11 @@ from actcast_api import ActcastAPI, Color
 page_limit = 100
 request_interval_msec = 1000
 
+
 def ls_device2csv(api, group_id, out_path, page_id=''):
     next = ''
     page_start = 0
-    
+
     # PageIDの指定があれば途中のページから始められるようにする
     if page_id != '':
         next = page_id
@@ -20,9 +21,9 @@ def ls_device2csv(api, group_id, out_path, page_id=''):
     ##################################################
     # デバイス総数と必要ページネーション回数を求める
     ##################################################
-    params = {'limit':page_limit, 'next': next}
+    params = {'limit': page_limit, 'next': next}
     data = api.get_devices_list(group_id, query_params=params)
-    
+
     device_total = data.total
     page_end = (-1 * (-device_total // page_limit))  # 切り上げ
 
@@ -30,10 +31,10 @@ def ls_device2csv(api, group_id, out_path, page_id=''):
     print(f'execute: {page_start}-{page_end} page')
     print('=' * 80)
 
-
     with open(out_path, 'w', newline="") as f:
         writer = csv.writer(f)
-        writer.writerow(['index', 'device_id', 'act.name', 'foundness', 'firmware_version'])
+        writer.writerow(['index', 'device_id', 'act.name',
+                        'foundness', 'firmware_version'])
 
         ##################################################
         # ページネーション
@@ -43,12 +44,13 @@ def ls_device2csv(api, group_id, out_path, page_id=''):
 
             print(f'\nPageID => {next}')
 
-            params = {'limit':page_limit, 'next': next}
+            params = {'limit': page_limit, 'next': next}
             data = api.get_devices_list(group_id, query_params=params)
 
             if data is False:
-              print(Color.RED+'ERROR: Could not get device list.'+Color.COLOR_DEFAULT)
-              sys.exit(1)
+                print(Color.RED+'ERROR: Could not get device list.' +
+                      Color.COLOR_DEFAULT)
+                sys.exit(1)
 
             # 1ページ分処理
             for i, item in enumerate(data.items, 1):
@@ -60,7 +62,8 @@ def ls_device2csv(api, group_id, out_path, page_id=''):
                 act_name = act.name if act is not None else "None"
                 firmware_version = item.device.firmware_version
 
-                writer.writerow([index, device_id, act_name, foundness, firmware_version])
+                writer.writerow([index, device_id, act_name,
+                                foundness, firmware_version])
                 print(f'{device_id} {index:6d}/{device_total}')
 
             if 'next' in data:
@@ -76,13 +79,14 @@ if __name__ == '__main__':
     args = sys.argv
     if len(args) < 3:
         print("usage:")
-        print(f"$ python3 {path.basename(__file__)} group_id output_path [page_id]")
+        print(
+            f"$ python3 {path.basename(__file__)} group_id output_path [page_id]")
     elif len(args) == 3:
-        group_id    = args[1]
+        group_id = args[1]
         output_path = args[2]
         ls_device2csv(api, group_id, output_path)
     else:
-        group_id    = args[1]
+        group_id = args[1]
         output_path = args[2]
-        page_id     = args[3]
+        page_id = args[3]
         ls_device2csv(api, group_id, output_path, page_id)

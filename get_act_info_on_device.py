@@ -5,6 +5,7 @@ import ast
 import json
 from actcast_api import ActcastAPI
 
+
 def example(api, group_id, device_id):
 
     # QUERY PARAMETERS

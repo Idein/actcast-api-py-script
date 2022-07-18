@@ -5,6 +5,7 @@ import ast
 import json
 from actcast_api import ActcastAPI
 
+
 def example(api, id):
     # PATH PARAMETERS
     group_id = id

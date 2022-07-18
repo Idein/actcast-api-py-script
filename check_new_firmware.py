@@ -3,6 +3,7 @@ from os import path
 import sys
 from actcast_api import ActcastAPI, Color
 
+
 def check_firmware(api, group_id):
     latest_info = api.get_firmware_info(group_id).items[0]
 
@@ -24,5 +25,5 @@ if __name__ == '__main__':
         print("usage:")
         print(f"$ python3 {path.basename(__file__)} group_id")
     else:
-        group_id    = args[1]
+        group_id = args[1]
         check_firmware(api, group_id)

@@ -8,10 +8,11 @@ from actcast_api import ActcastAPI, Color
 page_limit = 100
 request_interval_msec = 1000
 
+
 def status_reload_all(api, group_id, page_id=''):
     next = ''
     page_start = 0
-    
+
     # PageIDの指定があれば途中のページから始められるようにする
     if page_id != '':
         next = page_id
@@ -20,9 +21,9 @@ def status_reload_all(api, group_id, page_id=''):
     ##################################################
     # デバイス総数と必要ページネーション回数を求める
     ##################################################
-    params = {'limit':page_limit, 'next': next}
+    params = {'limit': page_limit, 'next': next}
     data = api.get_devices_list(group_id, query_params=params)
-    
+
     device_total = data.total
     page_end = (-1 * (-device_total // page_limit))  # 切り上げ
 
@@ -39,12 +40,12 @@ def status_reload_all(api, group_id, page_id=''):
 
         print(f'\nPageID => {next}')
 
-        params = {'limit':page_limit, 'next': next}
+        params = {'limit': page_limit, 'next': next}
         data = api.get_devices_list(group_id, query_params=params)
-        
+
         if data is False:
-          print(Color.RED+'ERROR: Could not get device list.'+Color.COLOR_DEFAULT)
-          sys.exit(1)
+            print(Color.RED+'ERROR: Could not get device list.'+Color.COLOR_DEFAULT)
+            sys.exit(1)
 
         # 1ページ分処理
         for i, item in enumerate(data.items, 1):
@@ -55,10 +56,11 @@ def status_reload_all(api, group_id, page_id=''):
             res = api.status_reload(group_id, device_id)
 
             if res is False:
-              print(Color.RED+f'└> ERROR: {device_id} {index:6d}/{device_total}')
-              print('-' * 80, Color.COLOR_DEFAULT)
+                print(
+                    Color.RED+f'└> ERROR: {device_id} {index:6d}/{device_total}')
+                print('-' * 80, Color.COLOR_DEFAULT)
             else:
-              print(f'{device_id} {index:6d}/{device_total}')
+                print(f'{device_id} {index:6d}/{device_total}')
 
         if 'next' in data:
             next = data.next
@@ -68,16 +70,16 @@ def status_reload_all(api, group_id, page_id=''):
 
 
 if __name__ == '__main__':
-  api = ActcastAPI()
+    api = ActcastAPI()
 
-  args = sys.argv
-  if len(args) < 2:
-    print("usage:")
-    print(f"$ python3 {path.basename(__file__)} group_id [page_id]")
-  elif len(args) == 2:
-    group_id  = args[1]
-    status_reload_all(api, group_id)
-  else:
-    group_id  = args[1]
-    page_id   = args[2]
-    status_reload_all(api, group_id, page_id)
+    args = sys.argv
+    if len(args) < 2:
+        print("usage:")
+        print(f"$ python3 {path.basename(__file__)} group_id [page_id]")
+    elif len(args) == 2:
+        group_id = args[1]
+        status_reload_all(api, group_id)
+    else:
+        group_id = args[1]
+        page_id = args[2]
+        status_reload_all(api, group_id, page_id)
