@@ -6,18 +6,10 @@ import json
 from actcast_api import ActcastAPI
 
 
-def example(api, id):
-    # PATH PARAMETERS
-    group_id = id
-
-    # QUERY PARAMETERS
-    query_params = {
-        'limit': 3,
-        'include_status': 0
-    }
+def get_device_info(api, group_id, device_id):
 
     # Request
-    data = api.get_devices_list(group_id, query_params)
+    data = api.get_device_info(group_id, device_id)
 
     # Print result
     # actcast_api Wrapperの戻り値は正式なJSON形式で返ってこない(シングルクォーテーションが使われている)
@@ -30,8 +22,8 @@ if __name__ == '__main__':
     api = ActcastAPI()
 
     args = sys.argv
-    if len(args) < 2:
+    if len(args) < 3:
         print("usage:")
-        print(f"$ python3 {os.path.basename(__file__)} group_id")
+        print(f"$ python3 {os.path.basename(__file__)} group_id device_id")
     else:
-        example(api, args[1])
+        get_device_info(api, args[1], args[2])
