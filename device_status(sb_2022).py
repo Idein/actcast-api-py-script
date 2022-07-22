@@ -21,7 +21,12 @@ def ls_device_status(api, group_id, out_path, page_id=''):
     ##################################################
     # デバイス総数と必要ページネーション回数を求める
     ##################################################
-    params = {'limit': page_limit, 'next': next, 'include_status': 1}
+    params = {}
+    params.update({'limit': page_limit})
+    params.update({'include_status': 1})
+    if isinstance(next, int):
+        params.update({'next': next})
+
     data = api.get_devices_list(group_id, query_params=params)
 
     device_total = data.total
@@ -49,7 +54,10 @@ def ls_device_status(api, group_id, out_path, page_id=''):
 
             print(f'\nPageID => {next}')
 
-            params = {'limit': page_limit, 'next': next, 'include_status': 1}
+            params.update({'limit': page_limit})
+            params.update({'include_status': 1})
+            if isinstance(next, int):
+                params.update({'next': next})
             data = api.get_devices_list(group_id, query_params=params)
 
             if data is False:
