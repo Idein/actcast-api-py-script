@@ -104,7 +104,7 @@ def sleep_in_interval():
         CurrentInfo.last_update_start_time = datetime.datetime.now()
 
 
-f
+
 
 
 def install_single(api, group_id, act_id, current_device_id):
