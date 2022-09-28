@@ -61,19 +61,19 @@ def sleep_in_interval():
         CurrentInfo.update_batch_cnt = 0
         current_time = datetime.datetime.now()
         # update_intervalの秒数 - すでにこれまでの更新処理で利用した秒数 だけsleepする
-        time.sleep(Setting.update_interval - (current_time -
-                   CurrentInfo.last_update_start_time).seconds)
-        CurrentInfo.last_update_start_time = datetime.datetime.now()
+        if (Setting.update_interval >= (current_time - CurrentInfo.last_update_start_time).seconds):
+            time.sleep(Setting.update_interval - (current_time - CurrentInfo.last_update_start_time).seconds)
+            CurrentInfo.last_update_start_time = datetime.datetime.now()
 
 
 def update_single(api, group_id, device_id):
-    time.sleep(request_interval_msec/1000)
+    time.sleep(request_interval_msec / 1000)
 
     item = api.firmware_update(group_id, device_id)
 
     if item is False:
         logging.error(
-            Color.RED+f'└> ERROR updating Firmware for device: {device_id}')
+            Color.RED + f'└> ERROR updating Firmware for device: {device_id}')
         logging.error('-' * 80, Color.COLOR_DEFAULT)
     else:
         logging.info(f'{device_id}')
