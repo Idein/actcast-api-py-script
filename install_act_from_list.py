@@ -21,7 +21,8 @@ request_interval_msec = 1000
 class DeviceSpecificSettingsAction(Enum):
     RESTORE = 'RESTORE'
     USE_DEFAULT = 'USE_DEFAULT'
-    USE = 'USE'
+    USE_LOCAL = 'USE_LOCAL'
+    USE_LOCAL_REPLACE_PARTIAL = 'USE_LOCAL_REPLACE_PARTIAL'
     FORCED_RESTORE = 'FORCED_RESTORE'
 
     @classmethod
@@ -44,6 +45,7 @@ class Setting:
     devices_per_interval = 10000
     device_specific_settings_action = DeviceSpecificSettingsAction.RESTORE
     enable_rand_maximum_timelimit_minute_for_sb = False
+    replace_items = []
 
 
 def init_interval_settings(api):
@@ -60,6 +62,8 @@ def init_interval_settings(api):
     if 'enable_rand_maximum_timelimit_minute_for_sb' in api.setting_json:
         Setting.enable_rand_maximum_timelimit_minute_for_sb = api.setting_json[
             'enable_rand_maximum_timelimit_minute_for_sb']
+    if 'replace_items' in api.setting_json:
+        Setting.replace_items = api.setting_json['replace_items']
 
 
 def install_act_from_list(api, group_id, act_id, id_list_name):
@@ -104,27 +108,44 @@ def sleep_in_interval():
         CurrentInfo.last_update_start_time = datetime.datetime.now()
 
 
-
-
-
 def install_single(api, group_id, act_id, current_device_id):
-    time.sleep(request_interval_msec/1000)
+    time.sleep(request_interval_msec / 1000)
 
     act_settings = get_act_settings(api, group_id, current_device_id)
 
+    # 各プロジェクト向け特殊対応
+    # 一部設定値を任意の値に書き換えて送信する
+    act_settings = replace_partial_settings(api, group_id, current_device_id, act_settings)
+
+    res = api.put_change_act(group_id, current_device_id, act_id, act_settings)
+
+    if res is False:
+        print(Color.RED + f'└> ERROR: {current_device_id}')
+        print('-' * 80, Color.COLOR_DEFAULT)
+    else:
+        print(f'{current_device_id}' 'install success')
+
+
+def replace_partial_settings(api, group_id, current_device_id, act_settings):
     # SBプロジェクト用特殊対応
     # Speaker Separation in CounterアプリのDevice Spefic Settingの中の、
     # maximum_timelimit_minuteの値を0~59でランダムで書き換える
     if Setting.enable_rand_maximum_timelimit_minute_for_sb:
         act_settings['maximum_timelimit_minute'] = random.randint(0, 59)
 
-    res = api.put_change_act(group_id, current_device_id, act_id, act_settings)
+    # ファミマプロジェクト特殊対応
+    # 通常解像度→高解像度カメラ入れ替えのため、Setting Schemaが異なる新アプリに入れ替えが必要だが、
+    # カメラの閾値設定は前回のものを引き継ぎたい、という要望への対応。
+    # 基本はローカルのact_setting.jsonの設定を利用するが、
+    # replace_partial_itemsに指定した設定値を既存のDevice Specific Settingから取得したものと置き換える
+    if Setting.device_specific_settings_action == DeviceSpecificSettingsAction.USE_LOCAL_REPLACE_PARTIAL:
+        current_act_info = api.get_act_info_on_device(group_id, current_device_id)
+        current_act_info = ast.literal_eval(str(current_act_info))
+        currect_act_settings = current_act_info['settings']
+        for replace_item in Setting.replace_items:
+            act_settings[replace_item] = currect_act_settings[replace_item]
 
-    if res is False:
-        print(Color.RED+f'└> ERROR: {current_device_id}')
-        print('-' * 80, Color.COLOR_DEFAULT)
-    else:
-        print(f'{current_device_id}' 'install success')
+    return act_settings
 
 
 def get_act_settings(api, group_id, current_device_id):
@@ -140,14 +161,15 @@ def get_act_settings(api, group_id, current_device_id):
             # のいずれかの条件のとき、前回の設定をリストアする
             # ※FORCED_RESTOREの場合、Settingのスキーマが異なるActをインストールしようとするとエラーとなるので注意
             if ((CurrentInfo.act_info['release_id'] == current_act_info['release_id'])
-                    or Setting.device_specific_settings_action == DeviceSpecificSettingsAction.FORCED_RESTORE):
+                    or (Setting.device_specific_settings_action == DeviceSpecificSettingsAction.FORCED_RESTORE)):
                 return current_act_info['settings']
             else:
                 return {}
-        case DeviceSpecificSettingsAction.USE:
+        case DeviceSpecificSettingsAction.USE_LOCAL | DeviceSpecificSettingsAction.USE_LOCAL_REPLACE_PARTIAL:
             # ローカルのact_settings.jsonファイルから設定を反映する
             return get_act_settings_from_file()
         case DeviceSpecificSettingsAction.USE_DEFAULT:
+            # Actのデフォルト設定を利用する
             return {}
         case _:
             return {}
@@ -186,6 +208,7 @@ if __name__ == '__main__':
     api = ActcastAPI()
 
     args = sys.argv
+
     if len(args) < 4:
         print("usage:")
         print(
