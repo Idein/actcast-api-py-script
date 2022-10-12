@@ -1,8 +1,9 @@
 {
-"api_token": "wTqMcL2sk6V8EitCcNh2pTfgkE76yZIa",
+"api_token": "N7dmlWkAuRO9s9Uk7govqblwqp46RHoa",
 "max_retry": 1,
 "update_interval": 20,
 "update_devices_per_interval": 2,
-"device_specific_settings_action": "USE",
-"enable_rand_maximum_timelimit_minute_for_sb": true
+"device_specific_settings_action": "USE_LOCAL_REPLACE_PARTIAL",
+"enable_rand_maximum_timelimit_minute_for_sb": true,
+"replace_items": ["max_interval", "vad_length"]
 }
