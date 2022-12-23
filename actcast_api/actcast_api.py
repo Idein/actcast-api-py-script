@@ -34,7 +34,7 @@ class Color:
 class ActcastAPI:
 
     def __init__(self):
-        SETTING_JSON_PATH = './setting.json'
+        SETTING_JSON_PATH = os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), 'setting.json')
         if not os.path.isfile(SETTING_JSON_PATH):
             print(f"{SETTING_JSON_PATH} に[setting.json]ファイルがありません。")
             sys.exit(1)
