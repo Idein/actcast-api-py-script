@@ -9,7 +9,6 @@ import ast
 from actcast_api import ActcastAPI, Color
 from logging import StreamHandler, FileHandler, Formatter
 from logging import INFO, DEBUG, NOTSET
-from actcast_api.device_settings_template import DeviceSettingTags, DeviceSettingTemplateGenerator
 
 request_interval_msec = 500
 
