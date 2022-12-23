@@ -29,7 +29,8 @@ def update_firmware_config_from_list(api, target_firmware_version):
 
 
 def update_fw_config(api, group_id, id_list_name, target_firmware_version):
-    with open(id_list_name) as f:
+    file_path = os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), id_list_name)
+    with open(file_path) as f:
         while True:
             current_device_id = f.readline()
             if current_device_id == '':
