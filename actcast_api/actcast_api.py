@@ -204,7 +204,6 @@ class ActcastAPI:
         return res
 
     # イベントログ取得
-
     @api_request_exception
     def get_event_log(self, groupid, deviceid, query_params=""):
         endpoint = self.actcast.groups(groupid).devices(deviceid).event_logs
@@ -212,11 +211,26 @@ class ActcastAPI:
 
         return res
 
-    # ファームウェア詳細
+    # Actログ取得
+    @api_request_exception
+    def get_act_log(self, groupid, deviceid, query_params=""):
+        endpoint = self.actcast.groups(groupid).devices(deviceid).act_logs
+        res = endpoint.get(params=query_params)
 
+        return res
+
+    # ファームウェア詳細
     @api_request_exception
     def get_firmware_info(self, group_id, query_params=""):
         endpoint = self.actcast.groups(group_id).firmwares
+        res = endpoint.get(params=query_params)
+
+        return res
+
+    # 最新FW Ver取得
+    @api_request_exception
+    def get_latest_firmware_version(self, group_id, query_params=""):
+        endpoint = self.actcast.groups(group_id).firmwares.raspberrypi.versions
         res = endpoint.get(params=query_params)
 
         return res
