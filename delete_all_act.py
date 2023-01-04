@@ -8,7 +8,7 @@ page_limit = 100
 request_interval_msec = 1000
 
 
-def delete_all_act(api, group_id, page_id=''):
+def delete_all_act(api, page_id=''):
     next = ''
     page_start = 0
 
@@ -21,7 +21,7 @@ def delete_all_act(api, group_id, page_id=''):
     # デバイス総数と必要ページネーション回数を求める
     ##################################################
     params = {'limit': page_limit, 'next': next}
-    data = api.get_devices_list(group_id, query_params=params)
+    data = api.get_devices_list(query_params=params)
 
     device_total = data.total
     page_end = (-1 * (-device_total // page_limit))  # 切り上げ
@@ -34,15 +34,15 @@ def delete_all_act(api, group_id, page_id=''):
     # ページネーション
     ##################################################
     for page in range(page_start, page_end):
-        time.sleep(request_interval_msec/1000)
+        time.sleep(request_interval_msec / 1000)
 
         print(f'\nPageID => {next}')
 
         params = {'limit': page_limit, 'next': next}
-        data = api.get_devices_list(group_id, query_params=params)
+        data = api.get_devices_list(query_params=params)
 
         if data is False:
-            print(Color.RED+'ERROR: Could not get device list.'+Color.COLOR_DEFAULT)
+            print(Color.RED + 'ERROR: Could not get device list.' + Color.COLOR_DEFAULT)
             sys.exit(1)
 
         # 1ページ分処理
@@ -51,11 +51,11 @@ def delete_all_act(api, group_id, page_id=''):
 
             # actを削除
             device_id = item.device.id
-            res = api.del_act(group_id, device_id)
+            res = api.del_act(device_id)
 
             if res is False:
                 print(
-                    Color.RED+f'└> ERROR: {device_id} {index:6d}/{device_total}')
+                    Color.RED + f'└> ERROR: {device_id} {index:6d}/{device_total}')
                 print('-' * 80, Color.COLOR_DEFAULT)
             else:
                 print(f'{device_id} {index:6d}/{device_total}')
@@ -71,13 +71,11 @@ if __name__ == '__main__':
     api = ActcastAPI()
 
     args = sys.argv
-    if len(args) < 2:
+    if len(args) < 1:
         print("usage:")
-        print(f"$ python3 {path.basename(__file__)} group_id [page_id]")
+        print(f"$ python3 {path.basename(__file__)} [page_id]")
     elif len(args) == 2:
-        group_id = args[1]
-        delete_all_act(api, group_id)
+        page_id = args[1]
+        delete_all_act(api, page_id)
     else:
-        group_id = args[1]
-        page_id = args[2]
-        delete_all_act(api, group_id, page_id)
+        delete_all_act(api)

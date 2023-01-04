@@ -9,7 +9,7 @@ from actcast_api import ActcastAPI, Color
 from logging import StreamHandler, FileHandler, Formatter
 from logging import INFO, DEBUG, NOTSET
 
-request_interval_msec = 500
+request_interval_msec = 1
 
 
 class CurrentInfo:
@@ -23,12 +23,13 @@ class Setting:
     devices_per_interval = 10000
 
 
-def update_firmware(api, group_id, id_list_name):
+def update_firmware(api, id_list_name):
     init_interval_settings(api)
 
+    group_id = api.setting_json['group_id']
     print_latest_fw_info(api, group_id)
 
-    update_fw(api, group_id, id_list_name)
+    update_fw(api, id_list_name)
 
     logging.info('=' * 80)
     logging.info(f'Done. {datetime.datetime.now()}(JST)')
@@ -42,14 +43,14 @@ def init_interval_settings(api):
         Setting.devices_per_interval = api.setting_json['update_devices_per_interval']
 
 
-def update_fw(api, group_id, id_list_name):
+def update_fw(api, id_list_name):
     with open(id_list_name) as f:
         while True:
             current_device_id = f.readline()
             if current_device_id == '':
                 break
 
-            update_single(api, group_id, current_device_id.rstrip())
+            update_single(api, current_device_id.rstrip())
 
             if Setting.update_with_interval:
                 sleep_in_interval()
@@ -66,10 +67,10 @@ def sleep_in_interval():
             CurrentInfo.last_update_start_time = datetime.datetime.now()
 
 
-def update_single(api, group_id, device_id):
+def update_single(api, device_id):
     time.sleep(request_interval_msec / 1000)
 
-    item = api.firmware_update(group_id, device_id)
+    item = api.firmware_update(device_id)
 
     if item is False:
         logging.error(
@@ -114,11 +115,10 @@ if __name__ == '__main__':
     api = ActcastAPI()
 
     args = sys.argv
-    if len(args) < 2:
+    if len(args) < 1:
         logging.info("usage:")
         logging.info(
-            f"$ python3 {path.basename(__file__)} group_id id_list.txt")
+            f"$ python3 {path.basename(__file__)} id_list.txt")
     else:
-        group_id = args[1]
-        id_list_name = args[2]
-        update_firmware(api, group_id, id_list_name)
+        id_list_name = args[1]
+        update_firmware(api, id_list_name)

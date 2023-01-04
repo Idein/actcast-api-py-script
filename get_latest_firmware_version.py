@@ -6,10 +6,10 @@ import json
 from actcast_api import ActcastAPI
 
 
-def get_latest_firmware_version(api, group_id):
+def get_latest_firmware_version(api):
 
     # Request
-    data = api.get_latest_firmware_version(group_id)
+    data = api.get_latest_firmware_version()
 
     # Print result
     # actcast_api Wrapperの戻り値は正式なJSON形式で返ってこない(シングルクォーテーションが使われている)
@@ -21,9 +21,4 @@ def get_latest_firmware_version(api, group_id):
 if __name__ == '__main__':
     api = ActcastAPI()
 
-    args = sys.argv
-    if len(args) < 2:
-        print("usage:")
-        print(f"$ python3 {os.path.basename(__file__)} group_id")
-    else:
-        get_latest_firmware_version(api, args[1])
+    get_latest_firmware_version(api)

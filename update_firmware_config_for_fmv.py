@@ -12,15 +12,15 @@ from logging import INFO, DEBUG, NOTSET
 
 request_interval_msec = 500
 
-GROUP_ID = 2121
 ID_LIST_NAME = "device_list.txt"
 
 
 def update_firmware_config_from_list(api, target_firmware_version):
 
-    print_current_fw_info(api, GROUP_ID)
+    group_id = api.setting_json['group_id']
+    print_current_fw_info(api, group_id)
 
-    update_fw_config(api, GROUP_ID, ID_LIST_NAME, target_firmware_version)
+    update_fw_config(api, group_id, ID_LIST_NAME, target_firmware_version)
 
     logging.info('=' * 80)
     logging.info(f'Done. {datetime.datetime.now()}(JST)')

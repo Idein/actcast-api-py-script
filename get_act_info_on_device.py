@@ -6,7 +6,7 @@ import json
 from actcast_api import ActcastAPI
 
 
-def example(api, group_id, device_id):
+def example(api, device_id):
 
     # QUERY PARAMETERS
     query_params = {
@@ -16,7 +16,7 @@ def example(api, group_id, device_id):
     }
 
     # Request
-    data = api.get_act_info_on_device(group_id, device_id)
+    data = api.get_act_info_on_device(device_id)
 
     # Print result
     # actcast_api Wrapperの戻り値は正式なJSON形式で返ってこない(シングルクォーテーションが使われている)
@@ -29,8 +29,8 @@ if __name__ == '__main__':
     api = ActcastAPI()
 
     args = sys.argv
-    if len(args) < 3:
+    if len(args) < 2:
         print("usage:")
-        print(f"$ python3 {os.path.basename(__file__)} group_id device_id")
+        print(f"$ python3 {os.path.basename(__file__)} device_id")
     else:
-        example(api, args[1], args[2])
+        example(api, args[1])

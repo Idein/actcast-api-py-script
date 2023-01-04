@@ -9,7 +9,7 @@ page_limit = 100
 request_interval_msec = 1000
 
 
-def ls_device2csv(api, group_id, out_path, page_id=''):
+def ls_device2csv(api, out_path, page_id=''):
     next = ''
     page_start = 0
 
@@ -22,7 +22,7 @@ def ls_device2csv(api, group_id, out_path, page_id=''):
     # デバイス総数と必要ページネーション回数を求める
     ##################################################
     params = {'limit': page_limit, 'next': next}
-    data = api.get_devices_list(group_id, query_params=params)
+    data = api.get_devices_list(query_params=params)
 
     device_total = data.total
     page_end = (-1 * (-device_total // page_limit))  # 切り上げ
@@ -40,15 +40,15 @@ def ls_device2csv(api, group_id, out_path, page_id=''):
         # ページネーション
         ##################################################
         for page in range(page_start, page_end):
-            time.sleep(request_interval_msec/1000)
+            time.sleep(request_interval_msec / 1000)
 
             print(f'\nPageID => {next}')
 
             params = {'limit': page_limit, 'next': next}
-            data = api.get_devices_list(group_id, query_params=params)
+            data = api.get_devices_list(query_params=params)
 
             if data is False:
-                print(Color.RED+'ERROR: Could not get device list.' +
+                print(Color.RED + 'ERROR: Could not get device list.' +
                       Color.COLOR_DEFAULT)
                 sys.exit(1)
 
@@ -77,16 +77,14 @@ if __name__ == '__main__':
     api = ActcastAPI()
 
     args = sys.argv
-    if len(args) < 3:
+    if len(args) < 2:
         print("usage:")
         print(
-            f"$ python3 {path.basename(__file__)} group_id output_path [page_id]")
-    elif len(args) == 3:
-        group_id = args[1]
-        output_path = args[2]
-        ls_device2csv(api, group_id, output_path)
+            f"$ python3 {path.basename(__file__)} output_path [page_id]")
+    elif len(args) == 2:
+        output_path = args[1]
+        ls_device2csv(api, output_path)
     else:
-        group_id = args[1]
-        output_path = args[2]
-        page_id = args[3]
-        ls_device2csv(api, group_id, output_path, page_id)
+        output_path = args[1]
+        page_id = args[2]
+        ls_device2csv(api, output_path, page_id)

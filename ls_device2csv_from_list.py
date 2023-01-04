@@ -9,15 +9,7 @@ from actcast_api import ActcastAPI, Color
 request_interval_msec = 500
 
 
-@ActcastAPI.api_request_exception
-def get_device_info(api, group_id, device_id):
-    endpoint = api.actcast.groups(group_id).devices(device_id)
-    item = endpoint.get()
-
-    return item
-
-
-def ls_device2csv(api, group_id, id_list, out_path):
+def ls_device2csv(api, id_list, out_path):
     index = 0
 
     with open(out_path, 'w', newline="") as out_f:
@@ -27,16 +19,16 @@ def ls_device2csv(api, group_id, id_list, out_path):
 
         with open(id_list) as id_list_f:
             for device_id in id_list_f:
-                time.sleep(request_interval_msec/1000)
+                time.sleep(request_interval_msec / 1000)
 
                 index += 1
                 device_id = device_id.rstrip()
 
                 # デバイス情報抜き出し
-                item = get_device_info(api, group_id, device_id)
+                item = api.get_device_info(api, device_id)
 
                 if item is False:
-                    print(Color.RED+f'└> ERROR: {device_id} {index:6d}')
+                    print(Color.RED + f'└> ERROR: {device_id} {index:6d}')
                     print('-' * 80, Color.COLOR_DEFAULT)
                 else:
                     print(f'{device_id} {index:6d}')
@@ -60,9 +52,8 @@ if __name__ == '__main__':
     if len(args) < 2:
         print("usage:")
         print(
-            f"$ python3 {path.basename(__file__)} group_id id_list.txt output_path")
+            f"$ python3 {path.basename(__file__)} id_list.txt output_path")
     else:
-        group_id = args[1]
-        id_list = args[2]
-        output_path = args[3]
-        ls_device2csv(api, group_id, id_list, output_path)
+        id_list = args[1]
+        output_path = args[2]
+        ls_device2csv(api, id_list, output_path)

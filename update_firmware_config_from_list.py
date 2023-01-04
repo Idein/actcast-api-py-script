@@ -13,29 +13,30 @@ from logging import INFO, DEBUG, NOTSET
 request_interval_msec = 500
 
 
-def update_firmware_config_from_list(api, group_id, id_list_name, target_firmware_version):
+def update_firmware_config_from_list(api, id_list_name, target_firmware_version):
 
-    print_current_fw_info(api, group_id)
+    group_id = api.setting_json['group_id']
+    print_current_fw_info(group_id, api)
 
-    update_fw_config(api, group_id, id_list_name, target_firmware_version)
+    update_fw_config(api, id_list_name, target_firmware_version)
 
     logging.info('=' * 80)
     logging.info(f'Done. {datetime.datetime.now()}(JST)')
 
 
-def update_fw_config(api, group_id, id_list_name, target_firmware_version):
+def update_fw_config(api, id_list_name, target_firmware_version):
     with open(id_list_name) as f:
         while True:
             current_device_id = f.readline()
             if current_device_id == '':
                 break
 
-            update_single(api, group_id, current_device_id.rstrip(),
+            update_single(api, current_device_id.rstrip(),
                           target_firmware_version)
 
 
-def update_single(api, group_id, device_id, target_firmware_version):
-    time.sleep(request_interval_msec/1000)
+def update_single(api, device_id, target_firmware_version):
+    time.sleep(request_interval_msec / 1000)
 
     firmware_config = {"firmware_config": {
         "firmware_version": {
@@ -44,11 +45,11 @@ def update_single(api, group_id, device_id, target_firmware_version):
         }
     }}
 
-    item = api.set_device_settings(group_id, device_id, firmware_config)
+    item = api.set_device_settings(device_id, firmware_config)
 
     if item is False:
         logging.error(
-            Color.RED+f'└> ERROR updating Firmware for device: {device_id}')
+            Color.RED + f'└> ERROR updating Firmware for device: {device_id}')
         logging.error('-' * 80, Color.COLOR_DEFAULT)
     else:
         logging.info(f'{device_id}')
@@ -89,13 +90,12 @@ if __name__ == '__main__':
     api = ActcastAPI()
 
     args = sys.argv
-    if len(args) < 3:
+    if len(args) < 2:
         logging.info("usage:")
         logging.info(
-            f"$ python3 {path.basename(__file__)} group_id id_list.txt, target_firmware_version")
+            f"$ python3 {path.basename(__file__)} id_list.txt, target_firmware_version")
     else:
-        group_id = args[1]
-        id_list_name = args[2]
-        target_firmware_version = args[3]
+        id_list_name = args[1]
+        target_firmware_version = args[2]
         update_firmware_config_from_list(
-            api, group_id, id_list_name, target_firmware_version)
+            api, id_list_name, target_firmware_version)

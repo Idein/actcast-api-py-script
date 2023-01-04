@@ -41,6 +41,11 @@ class ActcastAPI:
         with open(SETTING_JSON_PATH) as f:
             self.setting_json = json.load(f)
 
+        if not 'group_id' in self.setting_json:
+            print("setting.jsonファイル内にgroup_idの項目がありません。")
+            sys.exit(1)
+        self.group_id = self.setting_json['group_id']
+
         self.actcast = tortilla.wrap('https://api.actcast.io/v0/')
         if not 'api_token' in self.setting_json:
             print("setting.jsonファイル内にapi_tokenの項目がありません。")
@@ -124,48 +129,48 @@ class ActcastAPI:
 
     # デバイス一覧
     @api_request_exception
-    def get_devices_list(self, groupid, query_params=""):
-        endpoint = self.actcast.groups(groupid).devices
+    def get_devices_list(self, query_params=""):
+        endpoint = self.actcast.groups(self.group_id).devices
         res = endpoint.get(params=query_params)
 
         return res
 
     # デバイス情報の取得
-    def get_device_info(self, groupid, deviceid, query_params=""):
-        endpoint = self.actcast.groups(groupid).devices(deviceid)
+    def get_device_info(self, deviceid, query_params=""):
+        endpoint = self.actcast.groups(self.group_id).devices(deviceid)
         res = endpoint.get(params=query_params)
 
         return res
 
     # デバイス上の設定変更
-    def set_device_settings(self, groupid, deviceid, device_settings):
-        endpoint = self.actcast.groups(groupid).devices(deviceid)
+    def set_device_settings(self, deviceid, device_settings):
+        endpoint = self.actcast.groups(self.group_id).devices(deviceid)
         res = endpoint.patch(json=device_settings)
 
         return res
 
     # Act情報の取得
     @api_request_exception
-    def get_act_info(self, group_id, act_id):
-        endpoint = self.actcast.groups(group_id).acts(act_id)
+    def get_act_info(self, act_id):
+        endpoint = self.actcast.groups(self.group_id).acts(act_id)
         res = endpoint.get()
 
         return res
 
     # 特定デバイスにインストールされたAct情報の取得
     @api_request_exception
-    def get_act_info_on_device(self, group_id, device_id):
-        endpoint = self.actcast.groups(group_id).devices(device_id).act
+    def get_act_info_on_device(self, device_id):
+        endpoint = self.actcast.groups(self.group_id).devices(device_id).act
         res = endpoint.get()
 
         return res
 
     # デバイス上のActの変更
     @api_request_exception
-    def put_change_act(self, group_id, device_id, act_id, act_settings):
+    def put_change_act(self, device_id, act_id, act_settings):
         payload = {"id": int(act_id), "settings": act_settings}
 
-        endpoint = self.actcast.groups(group_id).devices(device_id).act
+        endpoint = self.actcast.groups(self.group_id).devices(device_id).act
         res = endpoint.put(json=payload)
 
         return res
@@ -181,56 +186,56 @@ class ActcastAPI:
 
     # ファームウェアアップデート
     @api_request_exception
-    def firmware_update(self, group_id, device_id):
+    def firmware_update(self, device_id):
         job_command_type = "firmware_update"
-        res = self.post_job_command(group_id, device_id, job_command_type)
+        res = self.post_job_command(self.group_id, device_id, job_command_type)
 
         return res
 
     # デバイスステータスの更新
     @api_request_exception
-    def status_reload(self, group_id, device_id):
+    def status_reload(self, device_id):
         job_command_type = "device_status"
-        res = self.post_job_command(group_id, device_id, job_command_type)
+        res = self.post_job_command(self.group_id, device_id, job_command_type)
 
         return res
 
     # デバイス上のAct削除
     @api_request_exception
-    def del_act(self, groupid, deviceid):
-        endpoint = self.actcast.groups(groupid).devices(deviceid).act
+    def del_act(self, deviceid):
+        endpoint = self.actcast.groups(self.group_id).devices(deviceid).act
         res = endpoint.delete()
 
         return res
 
     # イベントログ取得
     @api_request_exception
-    def get_event_log(self, groupid, deviceid, query_params=""):
-        endpoint = self.actcast.groups(groupid).devices(deviceid).event_logs
+    def get_event_log(self, deviceid, query_params=""):
+        endpoint = self.actcast.groups(self.group_id).devices(deviceid).event_logs
         res = endpoint.get(params=query_params)
 
         return res
 
     # Actログ取得
     @api_request_exception
-    def get_act_log(self, groupid, deviceid, query_params=""):
-        endpoint = self.actcast.groups(groupid).devices(deviceid).act_logs
+    def get_act_log(self, deviceid, query_params=""):
+        endpoint = self.actcast.groups(self.group_id).devices(deviceid).act_logs
         res = endpoint.get(params=query_params)
 
         return res
 
     # ファームウェア詳細
     @api_request_exception
-    def get_firmware_info(self, group_id, query_params=""):
-        endpoint = self.actcast.groups(group_id).firmwares
+    def get_firmware_info(self, query_params=""):
+        endpoint = self.actcast.groups(self.group_id).firmwares
         res = endpoint.get(params=query_params)
 
         return res
 
     # 最新FW Ver取得
     @api_request_exception
-    def get_latest_firmware_version(self, group_id, query_params=""):
-        endpoint = self.actcast.groups(group_id).firmwares.raspberrypi.versions
+    def get_latest_firmware_version(self, query_params=""):
+        endpoint = self.actcast.groups(self.group_id).firmwares.raspberrypi.versions
         res = endpoint.get(params=query_params)
 
         return res
