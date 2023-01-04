@@ -24,8 +24,6 @@ def update_firmware_config_from_list(api, target_firmware_version):
     logging.info('=' * 80)
     logging.info(f'Done. {datetime.datetime.now()}(JST)')
 
-    input("Press any key to exit...")
-
 
 def update_fw_config(api, id_list_name, target_firmware_version):
     file_path = os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), id_list_name)
@@ -91,7 +89,10 @@ if __name__ == '__main__':
     )
     logging.basicConfig(level=NOTSET, handlers=[stream_handler, file_handler])
 
-    api = ActcastAPI()
+    try:
+        api = ActcastAPI()
 
-    target_firmware_version = input("specify firmware version for firmware config: ")
-    update_firmware_config_from_list(api, target_firmware_version)
+        target_firmware_version = input("specify firmware version for firmware config: ")
+        update_firmware_config_from_list(api, target_firmware_version)
+    finally:
+        input("Press any key to exit...")
