@@ -17,18 +17,15 @@ ID_LIST_NAME = "device_list.txt"
 
 def update_firmware_config_from_list(api, target_firmware_version):
 
-    group_id = api.setting_json['group_id']
-    print_current_fw_info(api, group_id)
+    print_current_fw_info(api)
 
-    update_fw_config(api, group_id, ID_LIST_NAME, target_firmware_version)
+    update_fw_config(api, ID_LIST_NAME, target_firmware_version)
 
     logging.info('=' * 80)
     logging.info(f'Done. {datetime.datetime.now()}(JST)')
 
-    input("Press any key to exit...")
 
-
-def update_fw_config(api, group_id, id_list_name, target_firmware_version):
+def update_fw_config(api, id_list_name, target_firmware_version):
     file_path = os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), id_list_name)
     with open(file_path) as f:
         while True:
@@ -36,11 +33,11 @@ def update_fw_config(api, group_id, id_list_name, target_firmware_version):
             if current_device_id == '':
                 break
 
-            update_single(api, group_id, current_device_id.rstrip(),
+            update_single(api, current_device_id.rstrip(),
                           target_firmware_version)
 
 
-def update_single(api, group_id, device_id, target_firmware_version):
+def update_single(api, device_id, target_firmware_version):
     time.sleep(request_interval_msec / 1000)
 
     firmware_config = {"firmware_config": {
@@ -50,7 +47,7 @@ def update_single(api, group_id, device_id, target_firmware_version):
         }
     }}
 
-    item = api.set_device_settings(group_id, device_id, firmware_config)
+    item = api.set_device_settings(device_id, firmware_config)
 
     if item is False:
         logging.error(
@@ -60,8 +57,8 @@ def update_single(api, group_id, device_id, target_firmware_version):
         logging.info(f'{device_id}')
 
 
-def print_current_fw_info(api, group_id):
-    latest_info = api.get_firmware_info(group_id).items[0]
+def print_current_fw_info(api):
+    latest_info = api.get_firmware_info().items[0]
     release_date = api.iso8601toJST(latest_info.release_date)
     logging.info('Latest firmware')
     logging.info(f'firmware_type    : {latest_info.firmware_type}')
@@ -92,7 +89,10 @@ if __name__ == '__main__':
     )
     logging.basicConfig(level=NOTSET, handlers=[stream_handler, file_handler])
 
-    api = ActcastAPI()
+    try:
+        api = ActcastAPI()
 
-    target_firmware_version = input("specify firmware version for firmware config: ")
-    update_firmware_config_from_list(api, target_firmware_version)
+        target_firmware_version = input("specify firmware version for firmware config: ")
+        update_firmware_config_from_list(api, target_firmware_version)
+    finally:
+        input("Press any key to exit...")
