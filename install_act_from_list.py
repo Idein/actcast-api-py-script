@@ -66,24 +66,24 @@ def init_interval_settings(api):
         Setting.replace_items = api.setting_json['replace_items']
 
 
-def install_act_from_list(api, group_id, act_id, id_list_name):
+def install_act_from_list(api, act_id, id_list_name):
     init_interval_settings(api)
 
     # インストールするActの情報を得る
-    CurrentInfo.act_info = api.get_act_info(group_id, act_id)
+    CurrentInfo.act_info = api.get_act_info(act_id)
 
     print(
         f'Request to install Act: [ {act_id} : {CurrentInfo.act_info.name} ]')
     print(f'target devices total: {sum([1 for _ in open(id_list_name)])}')
     print('=' * 80)
 
-    install_act(api, group_id, act_id, id_list_name)
+    install_act(api, act_id, id_list_name)
 
     print('=' * 80)
     print('Done.')
 
 
-def install_act(api, group_id, act_id, id_list_name):
+def install_act(api, act_id, id_list_name):
     with open(id_list_name) as f:
         while True:
             current_device_id = f.readline().rstrip()
@@ -93,7 +93,7 @@ def install_act(api, group_id, act_id, id_list_name):
             if Setting.update_with_interval:
                 sleep_in_interval()
 
-            install_single(api, group_id, act_id, current_device_id)
+            install_single(api, act_id, current_device_id)
 
 
 def sleep_in_interval():
@@ -108,16 +108,16 @@ def sleep_in_interval():
         CurrentInfo.last_update_start_time = datetime.datetime.now()
 
 
-def install_single(api, group_id, act_id, current_device_id):
+def install_single(api, act_id, current_device_id):
     time.sleep(request_interval_msec / 1000)
 
-    act_settings = get_act_settings(api, group_id, current_device_id)
+    act_settings = get_act_settings(api, current_device_id)
 
     # 各プロジェクト向け特殊対応
     # 一部設定値を任意の値に書き換えて送信する
-    act_settings = replace_partial_settings(api, group_id, current_device_id, act_settings)
+    act_settings = replace_partial_settings(api, current_device_id, act_settings)
 
-    res = api.put_change_act(group_id, current_device_id, act_id, act_settings)
+    res = api.put_change_act(current_device_id, act_id, act_settings)
 
     if res is False:
         print(Color.RED + f'└> ERROR: {current_device_id}')
@@ -126,7 +126,7 @@ def install_single(api, group_id, act_id, current_device_id):
         print(f'{current_device_id}' 'install success')
 
 
-def replace_partial_settings(api, group_id, current_device_id, act_settings):
+def replace_partial_settings(api, current_device_id, act_settings):
     # SBプロジェクト用特殊対応
     # Speaker Separation in CounterアプリのDevice Spefic Settingの中の、
     # maximum_timelimit_minuteの値を0~59でランダムで書き換える
@@ -139,7 +139,7 @@ def replace_partial_settings(api, group_id, current_device_id, act_settings):
     # 基本はローカルのact_setting.jsonの設定を利用するが、
     # replace_partial_itemsに指定した設定値を既存のDevice Specific Settingから取得したものと置き換える
     if Setting.device_specific_settings_action == DeviceSpecificSettingsAction.USE_LOCAL_REPLACE_PARTIAL:
-        current_act_info = api.get_act_info_on_device(group_id, current_device_id)
+        current_act_info = api.get_act_info_on_device(current_device_id)
         current_act_info = ast.literal_eval(str(current_act_info))
         currect_act_settings = current_act_info['settings']
         for replace_item in Setting.replace_items:
@@ -148,11 +148,10 @@ def replace_partial_settings(api, group_id, current_device_id, act_settings):
     return act_settings
 
 
-def get_act_settings(api, group_id, current_device_id):
+def get_act_settings(api, current_device_id):
     match Setting.device_specific_settings_action:
         case DeviceSpecificSettingsAction.RESTORE | DeviceSpecificSettingsAction.FORCED_RESTORE:
-            current_act_info = api.get_act_info_on_device(
-                group_id, current_device_id)
+            current_act_info = api.get_act_info_on_device(current_device_id)
             # actcast_api Wrapperの戻り値は正式なJSON形式で返ってこない(シングルクォーテーションが使われている)
             # なので、一旦辞書型にしてからjsonモジュールで扱う
             current_act_info = ast.literal_eval(str(current_act_info))
@@ -209,12 +208,11 @@ if __name__ == '__main__':
 
     args = sys.argv
 
-    if len(args) < 4:
+    if len(args) < 3:
         print("usage:")
         print(
-            f"$ python3 {path.basename(__file__)} group_id act_id id_list.txt")
+            f"$ python3 {path.basename(__file__)} act_id id_list.txt")
     else:
-        group_id = args[1]
-        act_id = args[2]
-        id_list_name = args[3]
-        install_act_from_list(api, group_id, act_id, id_list_name)
+        act_id = args[1]
+        id_list_name = args[2]
+        install_act_from_list(api, act_id, id_list_name)

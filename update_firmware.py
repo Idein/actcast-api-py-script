@@ -9,8 +9,8 @@ page_limit = 100
 request_interval_msec = 1000
 
 
-def update_firmware(api, group_id, page_id=''):
-    latest_info = api.get_firmware_info(group_id).items[0]
+def update_firmware(api, page_id=''):
+    latest_info = api.get_firmware_info().items[0]
 
     release_date = api.iso8601toJST(latest_info.release_date)
     print('Latest firmware')
@@ -31,7 +31,7 @@ def update_firmware(api, group_id, page_id=''):
     # デバイス総数と必要ページネーション回数を求める
     ##################################################
     params = {'limit': page_limit, 'next': next}
-    data = api.get_devices_list(group_id, query_params=params)
+    data = api.get_devices_list(query_params=params)
 
     device_total = data.total
     page_end = (-1 * (-device_total // page_limit))  # 切り上げ
@@ -45,15 +45,15 @@ def update_firmware(api, group_id, page_id=''):
     # ページネーション
     ##################################################
     for page in range(page_start, page_end):
-        time.sleep(request_interval_msec/1000)
+        time.sleep(request_interval_msec / 1000)
 
         print(f'\nPageID => {next}')
 
         params = {'limit': page_limit, 'next': next}
-        data = api.get_devices_list(group_id, query_params=params)
+        data = api.get_devices_list(query_params=params)
 
         if data is False:
-            print(Color.RED+'ERROR: Could not get device list.'+Color.COLOR_DEFAULT)
+            print(Color.RED + 'ERROR: Could not get device list.' + Color.COLOR_DEFAULT)
             sys.exit(1)
 
         # 1ページ分処理
@@ -62,11 +62,11 @@ def update_firmware(api, group_id, page_id=''):
 
             # ファームウェアをアップデート
             device_id = item.device.id
-            res = api.firmware_update(group_id, device_id)
+            res = api.firmware_update(device_id)
 
             if res is False:
                 print(
-                    Color.RED+f'└> ERROR: {device_id} {index:6d}/{device_total}')
+                    Color.RED + f'└> ERROR: {device_id} {index:6d}/{device_total}')
                 print('-' * 80, Color.COLOR_DEFAULT)
             else:
                 print(f'{device_id} {index:6d}/{device_total}')
@@ -82,13 +82,11 @@ if __name__ == '__main__':
     api = ActcastAPI()
 
     args = sys.argv
-    if len(args) < 2:
+    if len(args) < 1:
         print("usage:")
-        print(f"$ python3 {path.basename(__file__)} group_id [page_id]")
-    elif len(args) == 2:
-        group_id = args[1]
-        update_firmware(api, group_id)
+        print(f"$ python3 {path.basename(__file__)} [page_id]")
+    elif len(args) == 1:
+        update_firmware(api)
     else:
-        group_id = args[1]
-        page_id = args[2]
-        update_firmware(api, group_id, page_id)
+        page_id = args[1]
+        update_firmware(api, page_id)
