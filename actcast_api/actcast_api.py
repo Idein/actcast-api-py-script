@@ -174,6 +174,16 @@ class ActcastAPI:
         res = endpoint.put(json=payload)
 
         return res
+    
+    # デバイス上のActの詳細設定
+    @api_request_exception
+    def change_act_settings(self, device_id, act_settings):
+        payload = {"settings": act_settings}
+
+        endpoint = self.actcast.groups(self.group_id).devices(device_id).act
+        res = endpoint.patch(json=payload)
+
+        return res
 
     # デバイスにジョブコマンドを送信
     @api_request_exception
